@@ -234,7 +234,7 @@ void Initialize (int argc, char **argv)
    * ----------
    */
   
-  while ((c = getopt (argc, argv, "c:s:a:")) != -1) {
+  while ((c = getopt (argc, argv, "hc:s:a:")) != -1) {
 
 
     /*
@@ -254,6 +254,20 @@ void Initialize (int argc, char **argv)
      */
 
     switch (c) {
+    case 'h': cerr << 
+        "-c <minimum>: minimum number of sequences to match the motif.\n" <<
+        "   default: 30\n" <<
+        endl <<
+        "-s <stringency>: minimimum specificity for a motif, where stringency is\n" <<
+        "   -log_10(probability of motif matching a random sequence).\n" <<
+        "   Typical values are around 9, which implies that motifs match\n" <<
+        "   fewer than 1 in 1 billion random sequences.\n" <<
+        "   default: 0\n" <<
+        endl <<
+        "-a <filename>: specify an alternative alphabet file.\n" <<
+        "   default: /usr/share/emotif/default\n";
+      exit(0);
+      break;
     case 'c': minimum = atoi (optarg);
       break;
 
