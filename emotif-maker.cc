@@ -375,20 +375,11 @@ void Initialize (int argc, char **argv)
 
   ifstream A (alphabet_file);
 
-
-  /*
-   * ----------
-   * In the interest of speed Craig's emotif program does not check to see if
-   * problems are encountered during file opening.  A safer version would
-   * probably include the following code snippet:
-   *
-   *      if (A.bad ()) {
-   *        cerr << "Error:  Could not open <alphabet_file>\n";
-   *        exit (8);
-   *      }
-   * ----------
-   */
-
+  if (A.fail()) {
+    cerr << "Error:  Could not open " << alphabet_file << endl;
+    cerr << "Maybe you need to run make install?" << endl;
+    exit (8);
+  }
 
   /*
    * ----------
