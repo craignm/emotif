@@ -15,10 +15,12 @@
 
 #include <assert.h>
 #include <ctype.h>
-#include <fstream.h>
+#include <fstream>
 #include <math.h>
-#include <string.h>
-#include <iostream.h>
+#include <string>
+#include <iostream>
+using namespace std;
+
 
 /*
  * ----------
@@ -120,7 +122,7 @@ static char as[SEQUENCES][20],  // alphabets as text
 
 /*
  * ----------
- * Original Comment:  [The global 2D integer array count keeps track of the]
+ * Original Comment:  [The global 2D integer array sequence_count keeps track of the]
  *                    occurrences of group in each column.  this gets modified
  *                    (decremented) going down the tree, and gets restored
  *                    coming back up; it's pretty dynamic.
@@ -128,7 +130,7 @@ static char as[SEQUENCES][20],  // alphabets as text
  * 
  */
 
-static int count[SLENGTH][ALPHABETS]; 
+static int sequence_count[SLENGTH][ALPHABETS]; 
 
 
 /*
@@ -850,18 +852,18 @@ void Initialize (int argc, char **argv)
 
 	  /*
 	   * ----------
-	   * The pointer count points to a global 2D integer array.  The row
+	   * The pointer sequence_count points to a global 2D integer array.  The row
 	   * index i indicates which column in the block of locally aligned
 	   * sequence is being processed; the column index j, on the other
 	   * hand, specifies which alphabet is under investigation.  If the
 	   * amino acid found in sequence s and column i belongs to the
-	   * alphabet j, count[i][j] will be incremented by one to reflect
+	   * alphabet j, sequence_count[i][j] will be incremented by one to reflect
 	   * the fact that one more sequence has been found to contain the
 	   * alphabet j.
 	   * ----------
 	   */
 
-	  count[i][j]++;
+	  sequence_count[i][j]++;
 	}  /* if (sequence[s][i] & alphabet[j]) */
       }  /* for (j = 0; j < a; j++) */
     }  /* for (i = 0; ss[s][i]; i++) */
@@ -1150,7 +1152,7 @@ void FormMotifs (int left)
        * ----------
        */
 
-      if (count[i][j] == num_included) {
+      if (sequence_count[i][j] == num_included) {
 
 
 	/*
@@ -1236,7 +1238,7 @@ void FormMotifs (int left)
 	 */
 
 	break;
-      }  /* if (count[i][j] == num_included) */
+      }  /* if (sequence_count[i][j] == num_included) */
     }  /* for (j = 0; j < a; j++) */
 
 
@@ -1307,7 +1309,7 @@ void FormMotifs (int left)
     for (j = 0; j < a; j ++) {  // Iterate through all the alphabets.
 
 
-      if (count[i][j] < num_included && count[i][j] >= minimum) {  
+      if (sequence_count[i][j] < num_included && sequence_count[i][j] >= minimum) {  
 	// left is not guaranteed to be zero.  left is passed in, called
 	// recursively.  If a subs group does not reduce the num of sequences
 	// at all, then we don't consider it.  At each point we're looking for
@@ -1316,11 +1318,11 @@ void FormMotifs (int left)
 	// things.  
 	// I guess I don't see how satisfying the two conditions above excludes
 	// some of the sequences.  Wait, the counting is done back in the
-	// subroutine initialize, so if count[i][j] < num_included, the
+	// subroutine initialize, so if sequence_count[i][j] < num_included, the
 	// alphabet j is guaranteed to be only in a subset of sequences.
-	// The count[i][j] should also be at least above the minimum number
+	// The sequence_count[i][j] should also be at least above the minimum number
 	// of sequences that corresponds to 30% of the sequences.  The global
-	// 2D array count does not tell you which sequences are included and
+	// 2D array sequence_count does not tell you which sequences are included and
 	// which are excluded; the only thing it tells you is the number of
 	// includes, and you can figure out the number of excludes.
 
@@ -1374,9 +1376,9 @@ void FormMotifs (int left)
 	 *
 	 */
 
-	if (dejavu[count[i][j]] -> exists(included)) {
+	if (dejavu[sequence_count[i][j]] -> exists(included)) {
 
-	  // The value stored in count[i][j] reflects the number of sequences
+	  // The value stored in sequence_count[i][j] reflects the number of sequences
 	  // that have a particular alphabet j.  The function exists basically
 	  // check to see if the subset of sequences that have the alphabet j
 	  // at position i has already been seen.  The way Craig checked for
@@ -1389,12 +1391,12 @@ void FormMotifs (int left)
 
 	  memcpy(included, save, chunk * sizeof(ul));
 	  continue;  // So we move onto the next alpha.
-	}  // if (dejavu[count[i][j]] -> exists(included))
+	}  // if (dejavu[sequence_count[i][j]] -> exists(included))
 
 
 	/*
 	 * ----------
-	 * Original Comment:  [The following lines of code] update the counts 
+	 * Original Comment:  [The following lines of code] update the sequence_counts 
 	 *                    based on excluding the sequences.
 	 * ==========
 	 *
@@ -1425,19 +1427,19 @@ void FormMotifs (int left)
 	      // match is all the subs groups this amino acid appears in.
 
 	      for (int m = 0; m < mi[ss[k][l] - 'a']; m++) {
-		count[l][match[ss[k][l] - 'a'][m]]--;  
+		sequence_count[l][match[ss[k][l] - 'a'][m]]--;  
 		// looking at a particular AA (0-25).  The column index for
 		// match indicates all the subs groups that contain AA in.
 
-		// what is count?  
+		// what is sequence_count?  
 		// This is the number of sequences that would match if we
-		// enforce the subs group in the second index [m].  Count
+		// enforce the subs group in the second index [m].  Sequence_Count
 		// will be updated to the current number of sequences in the
 		// subset.  We're trying to remove once sequence in this
-		// count array.  And so we have to go through every position
+		// sequence_count array.  And so we have to go through every position
 		// in the sequence and consider every subs group that the
 		// amino acid in this position belongs to, and decrement the
-		// count.  
+		// sequence_count.  
 
 	   
 		// quickly look up all the subs group that amino acid which
@@ -1474,7 +1476,7 @@ void FormMotifs (int left)
 	 */
 
 
-	// Before it goes to the next alphabet, it puts back the counts,
+	// Before it goes to the next alphabet, it puts back the sequence_counts,
 	// the included bit map, and num_included.
 
 	for (k = 0; k < s; k++) {
@@ -1482,7 +1484,7 @@ void FormMotifs (int left)
 	    for (int l = 0; l < length; l++) {
 
 	      for (int m = 0; m < mi[ss[k][l] - 'a']; m++) {
-		count[l][match[ss[k][l] - 'a'][m]]++;
+		sequence_count[l][match[ss[k][l] - 'a'][m]]++;
 	      }  // for (int m = 0; m < mi[ss[k][l] - 'a']; m++)
 	    }  // for (int l = 0; l < length; l++)
 
@@ -1493,7 +1495,7 @@ void FormMotifs (int left)
 	  }  // if (!QUERY(included, k) && QUERY(save, k))
 	}  // for (k = 0; k < s; k++)
 
-      }  // if (count[i][j] < num_included && count[i][j] >= minimum)
+      }  // if (sequence_count[i][j] < num_included && sequence_count[i][j] >= minimum)
 
     }  // for (j = 0; j < a; j++)
 

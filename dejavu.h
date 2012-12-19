@@ -128,7 +128,7 @@ class dejavus {
   } // int next_prime (int p)
   
   
-  inline int dejavus::exists (unsigned long *n) {
+  int exists (unsigned long *n) {
     ul hash = 0;
     int i;
     
@@ -213,7 +213,7 @@ class dejavus {
   // For debugging...goes to the next non-null entry in the hash
   // table.  traverse holds the next non-null entry.
 
-  inline ul *dejavus::next () {
+  ul *next () {
     for (; traverse < size; traverse++) {
       if (memcmp (zero, &p[traverse * chunk], chunk * sizeof (ul))) {
 	return (&p[traverse ++ * chunk]);
